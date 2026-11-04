@@ -1,0 +1,42 @@
+name: Laravel
+
+on:
+  push:
+    branches: [main, casoestudio3-C4J653-branch]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obtener codigo
+        uses: actions/checkout@v7
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+
+      - name: Preparar entorno
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generar llave
+        run: php artisan key:generate --no-interaction
+
+      - name: Ejecutar pruebas
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: php artisan test --compact
