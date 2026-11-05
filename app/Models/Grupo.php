@@ -36,4 +36,57 @@ class Grupo extends Model
     {
         return $this->hasMany(EstudianteMatriculado::class);
     }
+
+    protected function casts(): array
+    {
+        return [
+            'abierto' => 'boolean',
+        ];
+    }
+
+    public function asignarDocente(int $codEmpleado): void
+    {
+        $docente = $this->buscarDocente($codEmpleado);
+
+        // Asignar de nuevo al mismo docente no duplica la relación.
+        if ($this->docentes()->whereKey($docente->id)->exists()) {
+            return;
+        }
+
+        if ($this->docentes()->count() >= 2) {
+            throw new \DomainException(
+                'Un grupo no puede tener más de dos docentes.'
+            );
+        }
+
+        $this->docentes()->attach($docente->id);
+
+        $this->unsetRelation('docentes');
+    }
+
+    protected function buscarDocente(int $codEmpleado): Docente
+    {
+        return Docente::where('cod_empleado', $codEmpleado)->firstOrFail();
+    }
+
+    public function puedeAbrirse(): bool
+    {
+        $cantidadDocentes = $this->docentes()->count();
+
+        return $cantidadDocentes >= 1
+            && $cantidadDocentes <= 2
+            && $this->estudiantes()->count() >= 15;
+    }
+
+    public function abrir(): void
+    {
+        if (! $this->puedeAbrirse()) {
+            throw new \DomainException(
+                'El grupo necesita uno o dos docentes y al menos 15 estudiantes.'
+            );
+        }
+
+        $this->abierto = true;
+        $this->save();
+    }
 }
