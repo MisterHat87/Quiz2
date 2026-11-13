@@ -89,7 +89,7 @@ test('CP-03: persiste dos docentes y la relación inversa', function () {
 
     expect($this->ana->grupos()->whereKey($this->grupo->id)->exists())->toBeTrue();
 
-    $this->assertDatabaseCount('docente_grupo', 2);
+    $this->assertDatabaseCount('grupo_docente', 2);
 });
 
 test('CP-04: rechaza al tercero y conserva los dos docentes', function () {
@@ -114,9 +114,9 @@ test('CP-04: rechaza al tercero y conserva los dos docentes', function () {
         ->all())
         ->toEqualCanonicalizing([1001, 1002]);
 
-    $this->assertDatabaseCount('docente_grupo', 2);
+    $this->assertDatabaseCount('grupo_docente', 2);
 
-    $this->assertDatabaseMissing('docente_grupo', [
+    $this->assertDatabaseMissing('grupo_docente', [
         'grupo_id' => $this->grupo->id,
         'docente_id' => $tercero->id,
     ]);

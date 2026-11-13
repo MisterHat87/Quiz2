@@ -37,9 +37,9 @@ it('recupera el curso los docentes los consejeros y las notas del grupo', functi
 
     foreach ($recuperado->estudiantes as $estudiante) {
         expect($estudiante->consejero->is($docentes->first()))->toBeTrue();
-        expect($estudiante->matricula)->toBeInstanceOf(Pivot::class);
-        expect($estudiante->matricula->nota)->toBe(9.5);
-        expect($estudiante->grupos->first()->matricula->nota)->toBe(9.5);
+        expect($estudiante->pivot)->toBeInstanceOf(Pivot::class);
+        expect($estudiante->pivot->nota)->toBe(9.5);
+        expect($estudiante->grupos->first()->pivot->nota)->toBe(9.5);
     }
 
     $matricula = $recuperado->matriculas->first();
@@ -56,8 +56,8 @@ it('guarda una nota diferente para el mismo estudiante en cada grupo', function 
 
     $grupos[0]->estudiantes()->updateExistingPivot($estudiante->id, ['nota' => 10.0]);
 
-    expect($grupos[0]->estudiantes()->first()->matricula->nota)->toEqual(10.0);
-    expect($grupos[1]->estudiantes()->first()->matricula->nota)->toEqual(7.0);
+    expect($grupos[0]->estudiantes()->first()->pivot->nota)->toEqual(10.0);
+    expect($grupos[1]->estudiantes()->first()->pivot->nota)->toEqual(7.0);
     expect($estudiante->matriculas)->toHaveCount(2);
 });
 
@@ -106,5 +106,5 @@ it('admite una nota pendiente y la exige al validar las notas finales', function
     $grupo->refresh();
     GrupoValidator::validarNotasFinales($grupo);
 
-    expect($grupo->estudiantes->first()->matricula->nota)->toEqual(0.0);
+    expect($grupo->estudiantes->first()->pivot->nota)->toEqual(0.0);
 });

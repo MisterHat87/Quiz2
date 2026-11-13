@@ -22,7 +22,7 @@ class GrupoValidator
     public static function validarNotasFinales(Grupo $grupo): void
     {
         foreach ($grupo->estudiantes as $estudiante) {
-            if ($estudiante->matricula->nota === null) {
+            if ($estudiante->pivot->nota === null) {
                 throw new \DomainException('Cada estudiante matriculado debe tener una nota final.');
             }
         }

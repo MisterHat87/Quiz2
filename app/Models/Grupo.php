@@ -21,13 +21,13 @@ class Grupo extends Model
 
     public function docentes(): BelongsToMany
     {
-        return $this->belongsToMany(Docente::class, 'docente_grupo')->withTimestamps();
+        return $this->belongsToMany(Docente::class, 'grupo_docente')->withTimestamps();
     }
 
     public function estudiantes(): BelongsToMany
     {
-        return $this->belongsToMany(Estudiante::class, 'estudiante_matriculados')
-            ->as('matricula')
+        return $this->belongsToMany(Estudiante::class, 'estudiantes_matriculados')
+            ->using(EstudianteMatriculado::class)
             ->withPivot(['id', 'nota'])
             ->withTimestamps();
     }
@@ -44,9 +44,9 @@ class Grupo extends Model
         ];
     }
 
-    public function asignarDocente(int $codEmpleado): void
+    public function asignarDocente(Docente|int $codEmpleado): void
     {
-        $docente = $this->buscarDocente($codEmpleado);
+        $docente = $codEmpleado instanceof Docente ? $codEmpleado : $this->buscarDocente($codEmpleado);
 
         // Asignar de nuevo al mismo docente no duplica la relación.
         if ($this->docentes()->whereKey($docente->id)->exists()) {
@@ -88,5 +88,19 @@ class Grupo extends Model
 
         $this->abierto = true;
         $this->save();
+    }
+
+    public function registrarNota(Estudiante $estudiante, float $nota): void
+    {
+        if ($nota < 0 || $nota > 10) {
+            throw new \InvalidArgumentException('La nota debe estar entre 0 y 10.');
+        }
+
+        $matricula = $this->matriculas()->where('estudiante_id', $estudiante->id)->firstOrFail();
+        $matricula->nota = $nota;
+        $matricula->save();
+
+        $this->unsetRelation('estudiantes');
+        $this->unsetRelation('matriculas');
     }
 }

@@ -43,7 +43,7 @@ class GrupoTest extends TestCase
             $matricula = (new EstudianteMatriculado)->forceFill(['nota' => 9.5]);
             $matricula->setRelation('grupo', $grupo);
             $matricula->setRelation('estudiante', $estudiante);
-            $estudiante->setRelation('matricula', $matricula);
+            $estudiante->setRelation('pivot', $matricula);
             $estudiantes->push($estudiante);
             $matriculas->push($matricula);
         }
@@ -72,9 +72,9 @@ class GrupoTest extends TestCase
             $this->assertSame('Estudiante '.($indice + 1), $estudiante->nombre);
             $this->assertSame('Mora Rojas', $estudiante->apellidos);
             $this->assertSame($docentes->first(), $estudiante->consejero);
-            $this->assertSame(9.5, $estudiante->matricula->nota);
-            $this->assertSame($grupo, $estudiante->matricula->grupo);
-            $this->assertSame($estudiante, $estudiante->matricula->estudiante);
+            $this->assertSame(9.5, $estudiante->pivot->nota);
+            $this->assertSame($grupo, $estudiante->pivot->grupo);
+            $this->assertSame($estudiante, $estudiante->pivot->estudiante);
         }
     }
 }
